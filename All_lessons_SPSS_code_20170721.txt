@@ -1,0 +1,2711 @@
+* Encoding: UTF-8.
+
+
+*** LESSON 1
+
+
+*******************************************************.
+** NOTIFICATION OF FILE LOCATIONS / DIRECTORIES  
+**
+**
+** 
+** i) File location declarations: 
+*** For the commands below to work, you should begin by running the following 
+**   macros, which tell SPSS where to look for the relevant data files (mentioned
+**   above) on your machine : .
+** NOTE: EDIT THE PATHS BELOW TO EQUIVALENTS APPROPRIATE TO YOUR MACHINE . 
+*.
+
+*** basically we need to identify paths on your computer where files will be
+*** we tell spss what these paths are and it looks there, or puts files there when you tell it to
+
+*** the paths below point at an E: drive on my system, you need to change this, probably to the m: drive
+*** or possibly to a memory stick
+
+
+define !path1 () 'E:\Work\Courses&Code\Summer_school\data\' !enddefine. 
+* (the location of your working directory -  where you will save 
+*    newly created data files and output) .
+
+define !path2 () 'E:\Work\Courses&Code\Summer_school\data\save\' !enddefine. 
+* (the location of a save directory -  where you will save 
+*    data and files) .
+
+
+define !path9 () 'E:\Work\Courses&Code\Summer_school\data\temp\' !enddefine. 
+
+
+
+**** for this command to work, you need to get the ghs_v1.sav file from LEARN, Google Drive, or the download site
+**** then place it in folder identified by !path1
+
+
+get file=!path1+"ghs95_v1.sav".
+* (Opens the file from the relevant location).
+
+
+sav out=!path2+"ghs95_v2.sav".
+*(saving the data out as a SPSS file)
+*** HAVE A LOOK, CHECK ITS THERE
+
+
+sav out=!path2+"ghs95_v1.xlsx" .
+* read out as a Excel file
+
+** It can be easy to read excel data in, if you have your data in excel form
+# however, if your data is not organised for SPSS then it can be very time consuming 
+# to 'clean' data to make it 'readable' by SPSS or any other data analysis package
+
+**** SEE! it reads in the excel file
+
+get file=!path2+"ghs95_v1.xlsx".
+
+******************************************************************************************************
+******************************************************************************************************
+******************************************************************************************************
+******************************************************************************************************
+******************************************************************************************************
+******************************************************************************************************
+
+**** Here are are a number of other routines
+
+****************************************************************.
+******* EXERCISE 1.a  - GETTING DATA INTO SPSS  . 
+****************************************************************.
+
+
+
+
+*** Segment 1.a : adding data file information :.
+
+** Clear your SPSS session. 
+new file. 
+
+** Tap in the 4 by 4 table of data below into the blank data editor grid. 
+
+** the editor grid is the Data View tab on the SPSS program
+** its calle: 'IBM SPSS Stastics Data Editor' 
+
+*
+1	17	1.73 	A
+1	18	1.85 	B
+2	17	1.60 	C
+2	18	1.69 	A
+*.
+
+* Then run: .
+
+** running these commands will label the variables
+** then saves the data to the file specified by path1
+
+rename variables (var00001=sex). 
+rename variables (var00002 var00003 var00004= age height grade).
+variable labels sex "Student's gender" .
+variable labels age "Age in years" .
+variable labels  height "Height in metres" /grade "Higher Grade English result" .
+add value labels sex 1 "Male" 2 "Female" .
+fre var=all.
+sav out=!path1+"varbycase1.sav".
+
+* comment : on the rename variables and variable labels commands, we've shown some
+* commands which are just one variable at a time, but others which do several variables at once. 
+
+**************************************************.
+**** (1.b) Opening a pre-formatted SPSS file :.
+
+*** get the ghs file again
+*** make sure it is the correct directory
+
+get file=!path2+"ghs95_v2.sav".
+descriptives var=all.
+
+get file=!path2+"ghs95_v2.sav" /keep=npersons typaccm .
+descriptives var=all.
+
+**************************************************.
+
+**************************************************.
+*** (1.d)  Reading a plain text file :.
+
+*** this code wants to open up a file called wemp.dat
+*** this can be downloaded from LEARN data folder:
+
+* http://www.restore.ac.uk/Longitudinal/workshop_materials.html
+
+*** or from Google Docs data file:
+
+* https://drive.google.com/open?id=0Bw5ocrZBPpjRenZTZ25Kd1ItZ1U
+
+data list file=!path2+"wemp.dat" free
+      / case femp mune time und1 und5 age .
+
+* (This is a synthetic panel dataset where each record gives the 
+*   current employment status of husband-wife couples at different years).
+
+descriptives var=all.
+* (note: no variable or value labels - they need to be added).
+variable labels case "Individual identifier"
+   /femp "Wife's employment status"
+   /mune "Husband's employment status"
+   /time "Calendar time (year - 1975)"
+   /und1 "Any children aged less than 1 year"
+   /und5 "Any children age less than 5 years"
+   /age "Wife's age"   .
+add value labels 
+     femp 1 "Employed" 0 "Unemployed" 
+     /mune 1 "Unemployed" 0 "Employed" 
+     /und1 und5 1 "Yes" 0 "No" . 
+descriptives var=all.
+fre var=femp mune und1 und5 . 
+
+** .another example of reading in a file from Excel
+*** this can be downloaded from here :
+* http://www.restore.ac.uk/Longitudinal/workshop_materials.html
+
+*** or from Google Docs data file:
+* https://drive.google.com/open?id=0Bw5ocrZBPpjRenZTZ25Kd1ItZ1U
+
+**************************************************.
+*** (1.e)  Importing from Excel :.
+
+** Option 2  : reading in direct from an MS Excel file. 
+get data /type=xls /file=!path2+"workhours.xls" 
+           /sheet=name 'workhours data' /cellrange=full 
+           /readnames=on .  
+descriptives var=all.
+
+* (note that the readnames subcommand asks the top row of data to be read
+* as SPSS variable names - in SPSS versions earlier than 12, the names will be truncated 
+*  to a maximum width of 8 digits ).
+
+
+**************************************************.
+*** (1.f)  Reading in data through a syntax command file :.
+
+** Either, open the syntax file 'itskills_entry.sps' and run its commands. 
+
+** Or, if you're feeling clever - use the 'include' syntax command below to run 
+** the whole file as a 'batch' job. 
+
+*** you will need to put the file in the the file identified by the path then this should(!) run
+
+*** Again the file itskills_entry.sps can be downloaded from here :
+* http://www.restore.ac.uk/Longitudinal/workshop_materials.html
+
+*** or from Google Docs data file:
+* https://drive.google.com/open?id=0Bw5ocrZBPpjRenZTZ25Kd1ItZ1U
+
+
+include file=!path2+"it_skills_entry.sps".
+
+descriptives var=all.
+
+****************************************************************.
+******************************************************************.
+
+****** so there you go, this is a range of options to allow you to get data into spss for analysis.
+****** whatever way you decide to do it you will get credit
+
+
+
+**** LESSON 2
+
+
+*** RECODING VARIABLES IN SPSS
+
+
+*******************************************************.
+*******************************************************.
+***  Run some variable management tasks on the ghs95_v1 data file. 
+*******************************************************.
+
+*** this line uses the command 'fre var'
+** this asks SPSS to show descriptive frequencies for a number of frequencies
+
+
+*** the variables are SEX, Education level and Social Class
+*** have a look at the variables and the distibuitons 
+
+fre var=sex edlev soclase . 
+
+
+*** the code below creates new variables and recodes variables.
+
+** Treat the edlev and soclase variables:
+ 
+** this code creates (computes) a variables called edlev2
+** it recategorises a number of educational levels and labels the categories
+
+** we often want to or need to change how a variable is constructed
+
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+
+
+*** this code tells SPSS that any cases on the soclase variable with the values of -9 or 7 are missing
+*** think about why we have coded these categories as missing, why might this be?
+
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+
+*** this code takes a look at the 'new' variables
+
+fre var=edlev2 soclase . 
+
+***  this command summarises the variables earnings and work ours asking for some descriptive stats
+***
+
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+
+*** this code creates a variable called earn2, which is the same as eranings.
+*** is then sets values of less than 50 or greater than 2000 as the  value -999
+*** it then codes everything with the value -999 as missing
+
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+
+*** this code produces histogram graphs of the distribution of two variables
+
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+** 
+
+*** this code looks at  social class and general health
+*** it produces a contingency table 
+*** it applies a statistical test called a chi square
+*** and asks for the measure of association phi
+
+*** Phi is generally used for 2x2 tables
+*** Cramers-V for larger, nominal tables
+*** Gamma for larger ordinal tables
+
+fre var=soclase genhlth. 
+cro tables=soclase by genhlth /cells=count row /statistics=chi phi . 
+
+***************************************************************************
+
+
+
+****************************************************************.
+******* EXERCISE - CORE DATA MANAGEMENT TECHNIQUES  . 
+****************************************************************.
+
+
+*******************************************************.
+*** Segment 1  Open the GHS file and look at the distributions of a handful of variables . 
+*******************************************************.
+
+fre var=typaccm nadults origin edlev  . 
+descriptives var=nadults age  earnings .
+graph /histogram= age.
+graph /histogram=edlev . 
+
+** These are a selection of 'raw' variables - below we'll look at how we might adjust them 
+**  for the purposes of analysis. 
+
+
+
+*******************************************************.
+*** Segment 2  Variable managment on categorical variables . 
+*******************************************************.
+
+************************************.
+** Seg 3: 'Type of accomodation' variable.
+
+fre var=typaccm /statistics=min max range mode  .
+* Of the 10 different categories, three of them are big but 4 of them are quite small. 
+* A typical distributionally influenced decision would be to concentrate only on the 
+*  3 largest categories and merge the fourth and fifth (which appear similar). 
+** We do this by recoding the data but on a new variable (so as not to overwrite the original 
+**    information. 
+
+compute typaccm2=typaccm. 
+recode typaccm2 (1=1) (2=2) (3=3) (4,5=4) (else=-999).
+add value labels typaccm2 1 "Detached house" 2 "Semi-detached house" 
+            3 "Terraced house" 4 "Flat" -999 "Exclude".
+* (It is a convention to code values that we wish to exclude to high negative values). 
+variable label typaccm2 "Type of accomodation (reduced form)".
+missing values typaccm2 (-999).
+* (This command (see segment 3 below) tells SPSS that in most analyses, values 
+*    of -999 on this variable are to be ignored from processing).
+
+fre var=typaccm2.
+graph /pie=pct by typaccm2 . 
+
+** Comment: under this treatment, we'd ignore some cases from analysis just because 
+*    they came from a relatively rare category. 
+*    A common alternative is to use a residual 'other' category for small categories - we 
+*     can do that quickly by repeating the above but with a slight adjustment :.
+
+compute typaccm3=typaccm. 
+recode typaccm3 (1=1) (2=2) (3=3) (4,5=4) (6,7,8,9,10=5) (else=-999).
+add value labels typaccm3 1 "Detached house" 2 "Semi-detached house" 
+            3 "Terraced house" 4 "Flat" 5 "Other" -999 "Exclude".
+variable label typaccm3 "Type of accomodation (reduced form)".
+missing values typaccm3 (-999).
+
+fre var=typaccm3.
+graph /pie=pct by typaccm3 . 
+
+
+
+************************************.
+** Seg 4: 'Ethnic origin' variable.
+
+fre var=origin /statistics=min max range mode  .
+
+* This distribution is a classic problem for sociologist - in nationally representative samples,
+*  relatively few sample members are likely to identify with a minority ethnic group, and 
+*  although we're very interested in the differences between finer points of ethnic identity,
+*  the sample data is unlikely to sustain such analyses. 
+*  Most researchers make a compromise, somewhere between the full sample data and no
+*   information at all. Below a selection of commonly used possibilities is shown. 
+*  Note that best practice in these circumstances is to use a recoding that has some 
+*   justification in previous literature - eg one that was used in an earlier relevant application. 
+
+compute origin2=origin. 
+compute origin3=origin.
+compute origin4=origin.
+recode origin2 (1=1) (2,3,4,5,6,7,8=2) (else=-999).
+recode origin3 (1=1) (2,3=2) (4,5,6=3) (7,8=4) (else=-999).
+recode origin4 (1=1) (2=2) (4=3) (3,5,6,7,8=4) (else=-999).
+add value labels origin2 1 "White" 2 "Non-white" .
+add value labels origin3 1 "White" 2 "Black" 3 "South Asian" 4 "Other" .
+add value labels origin4 1 "White" 2 "Black-Caribbean" 3 "Indian" 4 "Other"  .
+missing values origin2 origin3 origin4 (-999).
+fre var=origin2 origin3 origin4. 
+
+
+************************************.
+** Seg 5: 'Education level' variable.
+
+fre var=edlev . 
+** This variable has a lot of information, but simply has too many categories to be 
+*    easily analysed in some circumstances. 
+*   A typical treatment is to make a substantive decision about thresholds between different
+*    categories, and derive a putatively ordinal revised measure. 
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+fre var=edlev2 . 
+
+
+
+************************************.
+** Seg 6: 'Dummy coding' of categorical data .
+
+** For the purposes of certain analytical methods, it is often desirable to code categorical data
+*   into dichotomous 'dummy variable' indicators. The values involved should normally be set 
+*   to 0 and 1, since this is the most convenient for many different purposes. For example : . 
+
+fre var=edlev2. 
+** These three categories could also be represented by three different dichotomous variables :.
+compute hied=(edlev2=1).
+compute meded=(edlev2=2).
+compute loed=(edlev2=3).
+fre var=edlev2 hied meded loed. 
+
+** Actually, dummy variables can be created in a few different ways. 
+*    The technique below is easier to follow, though requires more typing per variable .
+compute hied2=edlev2.
+recode hied2 (1=1) (2,3=0).
+compute meded2=edlev2.
+recode meded2 (2=1) (1,3=0).
+compute loed2=edlev2.
+recode loed2 (3=1) (1,2=0).
+fre var=edlev2 hied meded loed hied2 meded2 loed2 . 
+
+** Comment: beware of the role of missing / other categories when dummy coding .  
+
+
+** It is often handy to run univariate frequencies on more than one variable at the same time : . 
+fre var=typaccm bedstndb hhtypf1 /statistics=min max range mode  .
+
+
+*******************************************************.
+*** Segment 7  Variable managment on metric variables . 
+*******************************************************.
+
+************************************.
+** Seg 8.3(i): 'Earnings' variable.
+
+descriptives var=earnings /statistics=all .
+graph /histogram(normal)=earnings. 
+examine variables=earnings  /plot=boxplot histogram /percentiles(1 5 10 25 50 75 90 95 99) 
+         /statistics descriptives extreme(10) . 
+
+* This is a very typical 'raw' income distribution - it has a very wide spread (large range 
+*  and standard deviation), yet most cases are concentrated within a much smaller range of values. 
+* Also, the 'extremes' table shows that it is only a few cases at the ends of the distribution
+*  which are responsible for a lot of the spread.
+
+** One typical reaction is to 'crop' the analysis and only consider incomes in a certain 
+**  (substantively justified) range. See below: .
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+** (this is an example of a 'conditional' recoding. 'le' means 'less than or equal to', and 'gt' 
+**   means 'greater than').
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+
+
+** Another option is to make a linear transformation of the data in such a way that de-emphasises
+** extremely high values - a logarithmic distribution can do this. See below : .
+compute earn3=-999.
+if (earnings gt 1) earn3=ln(earnings).
+* This computes earn3 to be the natural log of the 'earnings' value. We only do this for 
+*  values of earnings greater than 1, as log transformations don't work for negative values or 
+*   values up to 1.  
+missing values earn3 (-999).
+graph /histogram(normal)=earn3. 
+
+* (You could also combine the two, eg logged income only if over 50gbp per week).
+
+* A strength of a logarithmic distribution is that it often makes for a much nicer 'shape' 
+*   to the histogram. A weakness though is that your values are now in 'logs'. 
+* For a note on such transformations, see Buckingham and Saunders 2004 p188-9. 
+
+
+
+************************************.
+** Seg 8: 'Age' variable.
+
+graph /histogram=age.
+
+** Two treatments of age are common : .
+
+
+** (1) Categorise it, if relevant, around socially significant values for the application you're 
+*        working on. 
+
+** Eg, say we were interested in car drivers, insurance companies typically use the following:.
+
+compute age2=age. 
+recode age2 (17 thru 21=1) (22 thru 28=2) (29 thru 55=3) (56 thru 65=4) (66 thru hi=5) (else=-999).
+add value labels age2 1 "Highest risk (17-21)" 2 "Medium risk (22-28)" 
+             3 "Lowest risk (29-55)" 4 "Modest risk (56-70)" 5 "High risk (over 70)".  
+fre var=age2. 
+
+
+** (2) Transform it by a linear expression. 
+
+** Say we wanted to make differences at higher ages more important :.
+
+compute agesq1=-999.
+if (age ge 16) agesq1=age**2.
+* (the '**2' symbol means 'squared'). 
+graph /scatterplot=age with agesq1.
+* (we'll introduce the scatterplot command in part 3). 
+
+** A slightly cleverer transformation might give greater influence to both the oldest and youngest :.
+compute agetemp=age - 50. 
+compute agesq2=-999.
+if (age ge 16) agesq2=agetemp**2.
+graph /scatterplot=age with agesq2.
+
+
+************************************.
+** Seg 9: 'nadults' variable.
+
+fre var=nadults. 
+** This is an interesting example of an interval level variable: it is a count measure, with a 
+**  very limited range of different categories. 
+
+graph /histogram(normal)=nadults.
+descriptives var=nadults /statistics=mean stddev skew kurtosis . 
+** The distribution is a bit of a way from being 'normal'.
+
+** Although this data could be treated as metric, it is more typical to 'downgrade' it 
+**  a level to ordinal, eg :.
+
+compute nadults2=nadults.
+recode nadults2 (1=1) (2=2) (3=3) (4=4) (5 thru hi=5) (else=-999).
+add value labels nadults2 1 "1" 2 "2" 3 "3" 4 "4" 5 "5 of more" .
+variable label nadults2 "Number of adults in household" .
+missing values nadults2 (-999).
+fre var=nadults2.
+
+
+*******************************************************.
+*** Segment 10  Case selection: dealing with missing data . 
+*******************************************************.
+
+** We have already made several uses of the 'missing data' command above. 
+** Missing data occurs when information on a particular variable for a particular 
+** case is not available, either because it was not collected successfully (missing)
+** or perhaps because it is not relevant to the analysis here ('inapplicable'). 
+
+** Conventionally, missing and inapplicable cases are coded with explicit values,  
+** usually negative numbers such as -999, -9,-7, -1, which remind an analyst that 
+** these cases are special cases. 
+
+** SPSS has the capacity to treat specified values as 'missing' for the purposes of analysis; 
+**  however some of the techniques often cause confusion or complications. 
+
+** Some examples :.
+
+*************************************.
+***** Seg 11: Using 'missing' to treat certain numeric categories as missing. 
+
+fre var=soclase . 
+* In the predefined dataset, the value -9 has already been declared as missing, and is ignored. 
+* We can add the value 7 also :.
+missing values soclase (-9,7).
+fre var=soclase. 
+* We can also turn the missing value treatment from all categories :.
+missing values soclase ().
+fre var=soclase. 
+* Finally go back to the original :.
+missing values soclase (-9).
+fre var=soclase. 
+** In fact, most of the pre-defined variables in this example file have some missing categories declared. 
+descriptives var=all. 
+** The 'N' column in the output shows the number of non-missing cases on each variable. 
+*  The total 'N' (should equal 3) shows that only {3} cases have non-missing data on every variable. 
+
+
+*******************************.
+***** Seg 12: SPSS definitions of 'user missing' and 'system missing' . 
+
+* 'user missing' = one or more numeric values treated as missing in analysis. 
+* 'system missing' = the relevant cell in the variable by case matrix doesn't have any numeric data. 
+
+* In fact, the GHS example dataset  only has user missing data; user missing data is usually 
+* safer, as it is easier to keep track of. 
+
+** System missing data can be generated, though, by defining new variables according to 
+**    variables  with missing data on them. 
+
+** For illustration:.
+fre var=sex. 
+missing values sex (1).
+compute sex2=sex*5.
+fre var=sex sex2. 
+* note the different treatments of the male cases on the two variables. 
+* If you have a look at the right hand end of your dataset, in the 'data view' pane of the 
+* 'data editor' window, you'll see some examples of system missing cells (just full stops in them). 
+
+* Remember to change the original variable back to it's original form.
+missing values sex ().
+fre var=sex sex2. 
+
+
+
+
+*******************************************************.
+*** Segment 13  Case selection: conditional on values of other variables. 
+*******************************************************.
+
+
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+missing values edlev2 earn2 (-999).
+
+
+fre var=sex edlev2 .
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+
+** In typical application, we might be interested only in looking at the average weekly 
+*    earnings of certain groups - eg men, or those with higher educational levels. 
+
+** There are several options . 
+
+** (i) Defining then using  'filter' variables. 
+compute males=(sex=1).
+compute malhied=(sex=1 & edlev2=1).
+fre var=sex males edlev2 malhied. 
+* A 'filter' variable _must_ be coded 1 for values you wish to use, and 0 otherwise. 
+
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+filter by males. 
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+filter off. 
+filter by malhied. 
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+filter off. 
+
+** (ii) Using 'split files'.
+** The 'split files' command runs every process once for each of the 'splits' defined between 
+**   different cases).
+** (Note an odd precursor: to run successfully, a 'split files' command has to be preceded 
+*    by a 'sorting' of the dataset in terms of the variables to be split by. Sorting involves rearranging
+*    the order of cases in the variable by case matrix (see session 5 lab)). 
+
+
+sort cases by sex edlev2.
+split files by sex.
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+split files by sex edlev2.
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+split files off. 
+* (note that the split files command doesn't exclude user missing values on the split variables).
+
+
+** (iii) Using the 'select if' option.
+
+** This is the quickest immediate way - but it can be cumbersome to keep repeating. 
+** 'Select if' permanently deletes cases from the active file; usually we use a 'temp' 
+* command immediately before it, so that it applies to the next command only. 
+
+fre var=sex edlev2 .
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+
+temp.
+select if (sex=1).
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+
+temp.
+select if (sex=1 & edlev2=1).
+examine variables=earn2  /plot=histogram  /statistics descriptives . 
+
+
+**********************************************************.
+**********************************************************
+**** EXERCISE ******************************************
+**********************************************************
+**********************************************************
+
+
+*** Have a look at the data (maybe using the variable view, you can use the pdf codebook) choose a variable, run the 'fre var' commands on it
+*** find one to work with, then recode it into a sensible manner
+*** make sure you check for missing cases and know what you have done with them 
+*** run some of the code to take a look at the variable, both before and after you recode
+*** give me a shout and show me what you have done
+*** talk to a neighbour if you like and do it together
+
+
+**********************************************************.
+**********************************************************
+**** EXERCISE ******************************************
+**********************************************************
+**********************************************************
+
+*** if you have some data that you have found that you would like to work with yet
+*** have a go at writing a program to read it into SPSS
+*** then have a look at some variables and 'clean' the data up with re-codes and specifying 'missing' cases 
+
+
+
+
+**** LESSON 3
+
+
+
+**** SOME USEFUL ANALYTIC TECHNIQUES
+
+
+
+
+
+fre var=typaccm. 
+* (Produces a frequency table of the values of the categories of the variable 'typaccm'). 
+
+descriptives var=workhrs. 
+* (Gives some summary statistics on the values in the variable 'workhrs'). 
+
+graph /histogram=workhrs. 
+* (Produces a 'histogram' showing the distribution of the metric values of 'workhrs').
+
+examine variables=workhrs by sex /plot=boxplot  /statistics=extreme . 
+* (among other things, this produces a 'box and whisker plot' for the distribution of 
+*  the metric values of 'workhrs' by the categories of 'sex').
+
+cro tables=hohscle by genhlth /cells=count row  . 
+* (a bivariate 'crosstabulation' of two categorical variables). 
+
+**********************************************************.
+** Technique by : number of variables; level of measurement of variables; purpose of analysis . 
+************************************.
+** One variable, categorical, descriptive :.
+fre var=typaccm. 
+graph /bar=typaccm. 
+************************************.
+** One variable, metric, descriptive :.
+graph /histogram=workhrs . 
+examine variables=workhrs /plot=boxplot  /statistics=extreme . 
+**************************************. 
+** One variable, metric, inferential :.
+examine variables=workhrs /plot=none /cinterval 95 . 
+**************************************. 
+** Two variables, both categorical, descriptive  :.
+cro tables=soclase by genhlth /cells=count row. 
+graph /bar=soclase by genhlth . 
+**************************************. 
+** Two variables, both categorical, inferential  :.
+fre var=soclase genhlth. 
+missing values soclase (-9,7).
+cro tables=soclase by genhlth /cells=count row /statistics=chi phi . 
+
+**************************************. 
+** Two variables, both metric, descriptive  :.
+graph /scatterplot=workhrs with earnings. 
+compute lnearn=-999.
+if (earnings ge 10 & earnings le 5000) lnearn=ln(earnings).
+missing values lnearn (-999).
+graph /scatterplot=workhrs with lnearn. 
+**************************************. 
+** Two variables, both metric, inferential  :.
+correlate var=workhrs lnearn . 
+**************************************. 
+** Two variables, one metric, one categorical, descriptive  :.
+examine variables=lnearn by soclase /nototal /plot=boxplot . 
+**************************************. 
+** Two variables, one metric, one categorical, inferential  :.
+means tables=lnearn by soclase /statistics=anova. 
+examine variables=lnearn by soclase /nototal /plot=boxplot . 
+graph /errorbar(CI 99)=lnearn by soclase . 
+graph /errorbar(CI 99)=lnearn by region . 
+
+****************************************************************.
+****************************************************************.
+
+************************************.
+** Seg3.2(i) Nominal level statistics  :.
+
+** The main way of seeing a distribution is through the 'frequencies' command (fre).
+fre var=typaccm. 
+fre var=typaccm /format=dfreq . 
+fre var=typaccm /statistics=min max range mode  .
+
+** It is often handy to run univariate frequencies on more than one variable at the same time : . 
+fre var=typaccm bedstndb hhtypf1 /statistics=min max range mode  .
+
+
+** Another way of seeing a categorical distribution is through the tables command.
+*   Although the 'tables' command ultimately gives better displays, it's syntax is more complicated .
+tables /table=typaccm . 
+tables /format blank missing ('.') /ftotal=ftot1 "Total"
+  /tables (labels) + ftot1 by  (typaccm) 
+  /statistics count ((F5.0) ' Cases '). 
+* (we'll cover the 'tables' command a little bit more in the part3 syntax).
+
+
+************************************.
+*** Seg3.2(ii) Nominal level graphics :.
+
+** For most purposes, the graphs available under the 'graph' command are adequate. 
+
+graph /bar=count by typaccm /title="Accommodation type for GHS 1995 adults" . 
+graph /bar=pct by typaccm /title="Accommodation type for GHS 1995 adults" . 
+
+graph /pie=count by typaccm /title="Accommodation type for GHS 1995 adults" . 
+graph /pie=pct by typaccm /title="Accommodation type for GHS 1995 adults" . 
+
+*****.
+*** Comment : Quite a few manipulations to the initial appearance of SPSS graphics 
+***   are possible after the initial generation - to perform these, you open up the graph editor 
+***   and change various options. 
+*****. 
+
+
+** Several graphs are also available as options under the 'frequencies' command, eg :.
+fre var=typaccm /barchart=freq /pie=freq . 
+
+
+** More complicated graphics option can be invoked with the 'igraph' command -  
+*    here's an example, though we won't look into them in depth here. 
+igraph /viewname="Simple Pie Chart" /summaryvar= $count  /style=var(typaccm)
+  /title="Type of accommodation, GHS 1995" /subtitle="Nationally representative sample: adults in UK" 
+        /caption="Pie chart of accomodation types" /x1length=5.0 /ylength=3.0 /x2length=3.0 
+          /chartlook="none" /catorder var(typaccm) (ascending counts omitempty) 
+         /pie key=on start 90 cw  slice=numin label pct n .
+
+
+      
+************************************.
+** Seg3.2(iii) Ordinal level variable - statistics  :.
+
+* The commands are much the same, except that the median and percentiles are more relevant .
+fre var=hohscle .  
+fre var=hohscle  /percentiles=1 5 10 50 90 95 99 /statistics=min max range mode median sum.
+tables /table=hohscle  . 
+
+* Threshold values can also be important in ordinal data - 
+*    see an example of using them in the part 2 syntax. 
+
+
+************************************.
+** Seg3.2(iv) Ordinal level variable - Graphics  :.
+
+* There's no significant departure from nominal level data, eg : . 
+
+graph /bar=count by hohscle. 
+fre var=hohscle /barchart=freq /pie=freq . 
+
+**********************************************************.
+
+
+*******************************************************.
+*** Segment 3.3) Summarizing single metric level variables . 
+*******************************************************.
+
+
+**********************************.
+*** Seg3.3(i) Statistical summaries of a metric variable distribution :.
+
+descriptives var=workhrs  .  
+descriptives var=workhrs /statistics=all.
+summarize var=workhrs /cells=all.
+
+** Comment: if you're unsure what a particular statistic means, one helpful SPSS function is 
+**  to open up the output table (right click then 'spss pivot table option' then open), then
+**  right-click the mouse on the text of the relevant statistic name, and click 'what's this'. 
+
+** The 'descriptives' and 'summarize' commands can review more than one variable at a time:.
+descriptives var=all.
+summarize var=workhrs hohx earnings . 
+
+
+**Another way of getting some of these and other statistics:.
+fre var=workhrs /format=notable /percentiles=5 10 50 90 95 /statistics=all.
+fre var=workhrs /format=notable /percentiles=5 10 90 95 /ntiles=4 /statistics=all.
+
+
+** The examine variables command gives many of these statistics
+* (as well as graphical displays which in the first instance are suppressed below):.
+
+examine variables=workhrs earnings  /plot=none /percentiles(1 5 10 25 50 75 90 95 99) 
+         /statistics descriptives extreme(4) . 
+
+* Comment: the 'extreme' table suggests that the data collection used a 'cropping' upper limit of 
+*  97 hours for this variable. 
+
+
+*****************************.
+** Seg3.3(ii) Graphical summaries :. 
+
+
+** Several options can generate much the same output :.
+graph /histogram=workhrs . 
+graph /line=workhrs. 
+examine variables=workhrs /plot=boxplot stemleaf histogram  /statistics=all. 
+fre var=workhrs /format=notable /histogram=freq  . 
+
+****************************************************************.
+****************************************************************.
+
+
+
+**** LESSON 4
+
+
+*** ASSOCIATION
+
+*** the previous lab introduced several basic data analyses techniques and graphics
+*** it can be quite confusing to run through all of these
+*** here we will focus on a couple of the techniques
+
+**** here are two examples from the previous lab
+**** the first is of a contingency table of two categorical variables
+*** the second is the association between two metric variables.
+
+*** This links very clearly to the lecture, where I introduced both chi-square and correlation
+
+*** chi-square is useful for assessing whether there is an association between two categorical varaiables
+
+** Two variables, both categorical, descriptive  :.
+cro tables=soclase by genhlth /cells=count row. 
+graph /bar=soclase by genhlth . 
+**************************************. 
+** Two variables, both categorical, inferential  :.
+fre var=soclase genhlth. 
+missing values soclase (-9,7).
+cro tables=soclase by genhlth /cells=count row /statistics=chi phi gamma . 
+
+*** correlation is appropriate for assessing the association between two metric variables
+
+** Two variables, both metric, inferential  :.
+
+**************************************. 
+** Two variables, both metric, descriptive  :.
+graph /scatterplot=workhrs with earnings. 
+compute lnearn=-999.
+if (earnings ge 10 & earnings le 5000) lnearn=ln(earnings).
+missing values lnearn (-999).
+graph /scatterplot=workhrs with lnearn. 
+**************************************. 
+
+*** the code above does something clever, it takes the natural log of earnings, rather than earnings, the association is more obvious if you log earnings
+
+** Two variables, both metric, inferential  :.
+correlate var=workhrs lnearn . 
+
+
+*** non logged earnings, correlation:
+
+correlate var=workhrs earnings . 
+
+**************************************************************
+
+*** If you want to look at the relationship between two categorical variables in your project, use chi-square
+*** If you want to look at the relationship between two scale (metric, ratio/interval) variables, use correlation
+
+***************************************************************
+
+*** I know it is a lot being introduced to so many new things. Correlation to help understand the association of 2 metric variables and 
+*** chi square to test whether 2 categorical varriables are independend (associated) are two core basic methods
+
+*** the pages below should help you understand how to interpret and apply these
+
+*** here is the UCLA page on correlation in SPSS and its interpreation have a look at it (copy the link and paste it into your browser)
+*** https://stats.idre.ucla.edu/spss/output/correlation/
+
+*** here is the UCLA page on chi-square and its interpretation, have a look at it (copy the link and paste it into a tab on your browser)
+** https://stats.idre.ucla.edu/spss/whatstat/what-statistical-analysis-should-i-usestatistical-analyses-using-spss/#chisq
+
+*** here in a very useful page which explains which test statistics are appropriate for which type of data, 
+*** if you click on the SPSS tab it will take you to the SPSS code and a description of the test
+*** this might be useful to think about for the research report...
+
+*** UCLA whatstat list:
+*** https://stats.idre.ucla.edu/other/mult-pkg/whatstat/
+
+ ***** Exercise 
+**** 1 Open up microsoft Word and write a description of the correlation and contigency table you produced above, as a short report 
+
+**** 2 have a look at other test statistics from the UCLA whatstat list, what statistics do you think might be useful to you for analysis you want to do and why? 
+**** (think about the types of variables that might be appropriate for an analysis you would want to do)
+
+**** 3 if you have data you would like to work with yet have a try at choosing and applying an appropriate test statistic to your data
+**** if you have not yet decided on what data you will work with have a look for data! 
+**** If you are going to use the GHS data try one of these tests. If you have your own data try one of these tests.
+ 
+
+
+*** LESSON 5 
+
+
+***  SOME MORE ANALYTIC TECHNIQUES
+
+
+********************************************************************************
+
+descriptives var=all.  
+
+fre var=sex edlev soclase . 
+
+** Treat the edlev and soclase variables, as in earlier example : .
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+
+fre var=edlev2 soclase . 
+
+
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+** .
+**********************************************************.
+*******************************************************.
+*** Segment 5.2) Summarising Categorical to categorical relationships . 
+*************************************************************.
+************************************.
+****** Seg5.2(i) Displaying the data values :.
+
+** The most common technique is the 'crosstabs' command :.
+
+cro edlev2 by sex. 
+cro edlev2 by sex /cells=count col .
+
+cro edlev2 soclase by sex /cells=count col total . 
+
+cro edlev2 by soclase /cells=count col row .
+
+** Summaries can also be made via a 'table' command :.
+tables /format blank missing ('.') /ftotal=ftot1 "Total"
+  /tables (soclase) + ftot1 by  (sex) 
+  /statistics count ((F5.0) ' Cases '). 
+* (There are many complex permutations to the tables command - there is a whole manual 
+*   describing there use! The reason people use 'tables' is because it offers more control 
+*   over output display ).
+
+
+** Lastly, we could also use 'split files' commands to a similar end : .
+
+sort cases by sex. 
+split files by sex.
+fre var=edlev2 soclase.  
+split files off. 
+
+
+
+
+************************************.
+****** Seg5.2(ii) Graphically displaying the data distributions :.
+
+
+** Clustered bar charts are the main approach : .
+
+** In terms of the total number of cases :.
+graph /bar=count by soclase by sex . 
+** In terms of  percentages - heights show the percentage of men and of women.
+graph /bar=pct by soclase by sex . 
+** (Note the graphs show slightly different patterns: eg, more women in total are in social class II
+**     than men; but _relatively_ more men are in it than women -  see the table %'s to confirm).
+
+
+** Bar charts can also come in a 'stacked' format :.
+graph /bar(stacked)=pct by soclase by sex . 
+graph /bar(stacked)=pct by soclase by edlev2 . 
+
+
+** Line graphs can also be used for categorical by categorical comparisons :.
+graph /line(multiple)=pct by soclase by edlev2 . 
+
+
+************************************.
+****** Seg5.2(iii) Association statistics for categorical data :.
+
+** Most statistics that you could need are available under the 'cro' command. 
+
+
+cro edlev2  by sex /cells=count col /statistics=phi .
+cro edlev2  by soclase /cells=count col /statistics=phi .
+
+** Note : Phi for nominal-by-nominal 2-by-2; Cramers V for all other nominal-by-nominal. 
+
+cro edlev2 soclase by sex /cells=count col /statistics=phi .
+
+cro edlev2  by soclase /cells=count col /statistics=all .
+** Remember : open up the output and right click on the text to get SPSS description of the statistic. 
+
+** Comment: SPSS gives you far too many statistics. 
+** The main ones to remember for categorical data are : 
+**     Cramers V (or Phi) for nominal-by-nominal
+**    Gamma for ordinal-by-ordinal (as the above table is). 
+
+
+*******************************************************.
+*** Segment 5.3) Summarizing categorical to metric relationships . 
+**********************************************************.
+
+
+************************************.
+****** Seg5.3(i) Looking at the data values :.
+
+** Categorical - by - metric descriptions = tables of means. 
+
+fre var=edlev2. 
+descriptives var=earn2 workhrs  .
+means tables=earn2 by edlev2 . 
+means tables=earn2 workhrs by edlev2 /cells=all  . 
+
+* Also the 'examine variables' command for the same things  .
+
+examine variables=earn2 by edlev2 /nototal /percentiles(1 5 10 50 90 95 99)
+        /plot=none  /statistics=descriptives extreme . 
+
+
+** Tables-of-mean statistics can also be computed by calculating univariate summaries under 
+* the split files command :.
+
+sort cases by edlev2. 
+split files by edlev2.
+descriptive var=earn2 workhrs /statistics=all . 
+fre var=earn2  /format=notable /percentiles=5 10 90 95 /ntiles=4 /statistics=all.
+split files off. 
+
+
+************************************.
+****** Seg5.3(ii) Graphical images :.
+
+** The most used option is probably the box and whisker plot  .
+
+examine variables = earn2  by edlev2     /plot=boxplot . 
+examine variables = earn2  by edlev     /plot=boxplot . 
+
+* The box shows the median (central line) and the 25 and 75 percentiles (edge of box).
+
+
+** Then there are errorbar (point) plots :.
+
+graph /errorbar=earn2 by edlev2 . 
+graph /errorbar=earn2 by edlev.
+* These show the arithmetic mean plus confidence intervals. 
+
+
+** And there are bar charts :.
+
+graph /bar=mean(earn2) by edlev2 . 
+graph /bar=mean(earn2) median(earn2) by edlev2 . 
+graph /bar=mean(earn2) median(earn2) by edlev . 
+* The height of the bars shows arithmetic mean of earnings; or median; other functions are
+*   also available. 
+
+
+** There are also line charts - though only useful if you have a low number of different values. 
+
+fre var=tea. 
+missing values tea (-9,14).
+graph /line(multiple)=count by tea by sex . 
+graph /line(multiple)=count by tea by soclase . 
+
+
+** And of course you can repeat univariate graphs :.
+
+examine variables = earn2  by edlev2     /plot= stemleaf histogram . 
+
+
+** Finally, if you have a lot of categories, scatterplots can sometimes be used 
+*   (but not strictly appropriate). 
+
+fre var=edlev. 
+graph /scatterplot=edlev with earn2 . 
+* Although edlev is categorical, the scatterplot illustrates spread in different categories, and 
+* can also be used to pick out  outliers (box and whisker plots can be used also). 
+
+
+
+************************************.
+****** Seg5.3(iii) Categorical by metric assocation statistics 
+
+
+**** The most used statsitic is 'eta' . 
+
+means tables=earn2  by edlev2    /statistics=anova . 
+means tables=earn2 workhrs by edlev2 sex   /statistics=anova . 
+
+** Eg, education is weakly associated with working hours, but gender is strongly associated. 
+
+
+
+*******************************************************.
+*** Segment 5.4) Summarizing metric to metric relationships . 
+***********************************************************.
+
+
+************************************.
+****** Seg5.4(i) Graphical displays . 
+
+descriptives var=earn2 workhrs. 
+
+
+graph /scatterplot=workhrs with earn2  .
+graph /scatterplot=age with earn2  .
+
+* Note: scatterplots are easier to understand when they have fewer cases:.
+
+temp.
+select if (age ge 25 & age le 40 & sex=1).
+graph /scatterplot=workhrs with earn2 /title="Hours of work by earnings, men age 25-40 only".
+
+*  You can edit the scatterplot display by opening up the output window and 
+*    trying out different options. 
+
+
+** Multiple scatterplots can be displayed at once - though it's not always that helpful!. 
+
+graph /scatterplot(matrix)= workhrs earn2 age .
+
+temp.
+select if (sex=1 & edlev2=1).
+graph /scatterplot(matrix)= workhrs earn2 age /title="Males with higher level education only" .
+
+
+
+************************************.
+****** Seg5.4(ii) Association statistics for metric-metric relations . 
+
+
+* Correlations and regressions indicate strength of assocations 
+*  (correlations and regression results are equilvalent in the bivariate case).
+
+
+correlate var=workhrs earn2 age . 
+
+
+
+regression var=workhrs earn2 
+     /dependent=earn2 /method=enter . 
+regression var=age earn2 
+     /dependent=earn2  /method=enter . 
+
+** Comment - there is a pattern of association, but it's weak - only explains a very small 
+**   proportion of the variance. 
+
+
+** Extension: quadratic function of age:  .
+compute agesq=-999.
+if (age ge 16) agesq=age**2.
+missing values agesq (-999).
+descriptives var=age agesq earn2 . 
+regression var=age agesq earn2 
+     /dependent=earn2  /method=enter . 
+** This makes sense - earnings rise then fall off again as age goes up. 
+*******************************************************************
+
+************************************.
+** Seg 5.5(ii): Tranforming between levels of measurement .
+
+graph /histogram=tea.
+fre var=tea. 
+
+** Note the value labels in the frequencies command: this is a categorical variable, 
+**  though it masquerades as an interval level variable!  .
+
+** Data like this is usually best treated by categorising it :.
+compute tea2=tea.
+recode tea2 (1,2=1) (3,4=2) (5 thru hi=3) (else=-999). 
+add value labels tea2 1 "Left educ 15-16" 2 "Left educ 17-18" 3 "Left educ later" . 
+missing values tea2 (-999).
+fre var=tea2.
+
+** However, empirical experience will suggest that treating 'tea' as a metric variable 
+**  will not dramatically misrepresent it's information - so long as you control for the 
+**   category of current students (14).  
+
+** Eg :  . 
+compute tea3=tea.
+recode tea3 (1,2=1) (3,4=2) (5 thru 13=3) (else=-999). 
+add value labels tea3 1 "Left educ 15-16" 2 "Left educ 17-18" 3 "Left educ later" . 
+missing values tea3 (-999).
+compute tea4=tea.
+missing values tea4 (-9,14).
+fre var=tea tea2 tea3 tea4.
+
+means tables=earn2 by tea2 tea3 /statistics=anova. 
+correlate var=earn2 tea tea4. 
+
+** The raw tea variable has a very different correlation to income than does the categorical 
+**   transformations - but the correlations from tea3 and tea4, ie categorical and metric, to 
+**  earnings are very close . 
+
+
+***************************************************************.
+****************************************************************.
+
+
+
+*** LESSON 6
+
+
+*** UNIVARIATE INFERENTIAL TECHNIQUES ON THE GHS95 FILE . 
+
+
+
+fre var=sex edlev soclase . 
+
+** Treat the edlev and soclase variables, as in part 2 syntax example : .
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+
+fre var=edlev2 soclase . 
+
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+** .
+
+
+*******************************************************.
+*** Segment 6.2) Some univariate metric inferential statistics and graphics  . 
+*******************************************************.
+
+*** putting confidence intervals around a sample statistic (like a mean) is one way we infer whether the estimate we have is likely to exist in the population from which the sample is drawn
+*** There will be a lecture on confidence intervals (CI's) soon.
+
+*** but basically, if the confidence interval does not overlap 0 (zero), if 0 (zero) is not within the confidence interval, we believe that the estimate is significantly different from zero, so 
+*** we believe the estimate we see can be applied to the population
+
+*** these are inferential statistics.
+
+*** check out this reading on CI's if you want to know more (you should)!
+
+*** http://www.mathsisfun.com/data/confidence-interval.html
+
+**************************************.
+****Seg6.2(i):  Confidence intervals around the mean . 
+
+descriptives var=workhrs.
+graph /histogram=workhrs.
+
+** 95% Confidence intervals around the mean for all the data :.
+examine variables=workhrs   /plot=histogram  /percentiles(1 5 10 25 50 75 90 95 99) 
+         /statistics descriptives extreme(4) . 
+examine variables=workhrs   /plot=none        /statistics descriptives . 
+
+summarize var=workhrs /cells=all. 
+* (Summarize doesn't give you the CI's, but it does calculate the standard error, 
+*    from which CI's may be deduced ).
+
+descriptives var=workhrs /statistics=all. 
+* ('descriptives' doesn't give you the CI's or the standard error, but it does 
+*  give you the standard deviation and n, from which the standard error then 
+*   in turn the CI's, can be deduced). 
+
+
+** 99% Confidence intervals :.
+examine variables=workhrs   /plot=none 
+         /statistics descriptives /cinterval 99 . 
+** 90% Confidence intervals :.
+examine variables=workhrs   /plot=none 
+         /statistics descriptives /cinterval 90 . 
+
+
+** Illustration : how CI's vary by sample size and level.
+compute ag1630=(age ge 16 & age le 30) .
+compute ag2830=(age ge 28 & age le 30).
+compute ag30m=(age=30 & sex=1).
+fre var=ag1630 ag2830 ag30m.
+
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 95 . 
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 99 . 
+filter by ag1630.
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 95 . 
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 99 . 
+filter by ag2830.
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 95 . 
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 99 . 
+filter by ag30m. 
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 95 . 
+examine variables=workhrs   /plot=none /statistics descriptives /cinterval 99 . 
+filter off. 
+* (output from this analysis is in lecture 3a, slide 30).
+
+
+**************************************.
+****Seg6.2(ii):  Graphics for confidence intervals  . 
+
+
+graph /errorbar(CI 95)=workhrs /title="Average hours per week, all GHS adults (n=2571)". 
+filter by ag30m.
+graph /errorbar(CI 95)=workhrs  /title="Average hours per week, GHS males aged 30 (n=30)". 
+filter off.
+* Comment: errorbars don't do much for a single variable. 
+*  They're usually better for comparing means from more than one group . 
+* To change the scale on the y-axis, open up the chart object in SPSS and 
+*   double click on the y-axis line, click on the 'scale' tab, and then uncheck the 
+*    range (min and max) boxes and change the values to a wider range. 
+
+******************************************************************.
+
+*** this next section is confidence intervals for proportions
+*** its effectively a hand calculation
+*** I'm not teaching this on the course this year
+*** although you may be interested to think about this
+
+*******************************************************.
+*** Segment 6.3) Some categorical inferential statistics and graphics  . 
+*******************************************************.
+
+
+*** Nominal level : confidence interval for a proportion :.
+
+fre var=edlev2 . 
+** SPSS doesn't have a computation function for confidence intervals for a proportion.
+** Need to do this manually or with MS excel :.
+* Formula : see Blaikie 2003:p173; or de Vaus 2002:p232. 
+* Excel calculator: see near top of : http://staff.stir.ac.uk/paul.lambert/downloads.html . 
+
+**** N = 3611 .
+**** Proportions: High = 9.8; Intermediate=30.3; Low=37.9 . 
+**  SE High = sqrt(0.098*(1-0.098) / 3611 ) = 0.0049 = 0.5% . 
+** => 95% CI high = 8.8 - 10.8%  . 
+**  SE Intermediate = sqrt(0.303*(1-0.303) / 3611 ) = 0.0076  = 0.8% . 
+** => 95% CI high = 28.7 - 31. 9 %  . 
+**  SE High = sqrt(0.379*(1-0.379) / 3611 ) = 0.0081 =  0.8% . 
+** => 95% CI high = 36.3 - 39.5 %  . 
+
+
+****************************************************************.
+****************************************************************.
+
+
+****************************************************************.
+******* LESSON 7 
+
+
+
+*** BIVARIATE INFERENTIAL TECHNIQUES ON THE GHS95 FILE . 
+
+
+
+****************************************************************.
+
+
+**** statistical inference is a method of generalising from our sample to our population
+**** we want to know if the association we see in our sample exists in the population
+**** statistics help us to do this by employing our knowledge of the sampling distribution of a statistic
+*** this enables us to measure 'how likely' it is that the estimate we have exists in the population
+
+*** three ways to do this are to estimate p-values, confidence intervals and/or standard errors
+
+*******************************************************.
+*** Segment 7.1) Open the file and prepare a few variables. 
+*******************************************************.
+
+get file=!path2+"ghs95_v1.sav".
+
+fre var=sex edlev soclase . 
+
+** Treat the edlev and soclase variables, as in part 2 syntax example : .
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+
+fre var=edlev2 soclase . 
+
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+** .
+
+*******************************************************.
+*** Segment 7.2) Cross-tabulations: Chi-squared inferential statistics . 
+*******************************************************.
+
+
+****************************.
+** Seg7.2(i) Pensions by gender for young adults .
+
+compute ag1630=(age ge 16 & age le 30).
+fre var=ag1630.
+filter by ag1630.
+fre var=sex perspens .
+cro sex by perspens /cells=count row. 
+cro sex by perspens /cells=count row /statistics=chisq phi . 
+filter off. 
+
+
+
+****************************.
+** Seg7.2(ii) Gender by consulting a doctor in last 2 weeks and age .
+
+compute age2=age.
+recode age2 (16 thru 30=1) (31 thru 50=2) (else=-999).
+add value labels age2 1 "16-30 years" 2 "31-50 years".
+missing values age2 (-999).
+fre var=sex age2 doctalk . 
+
+** Generate what's probably the most sensible table of these three :.
+
+cro doctalk by sex by age2  /cells=count row /statistics=chisq phi. 
+
+** Some further permutations for different bivariate significance statistics :.
+cro sex by age2 by doctalk  /cells=count row /statistics=chisq phi. 
+cro age2 by doctalk by sex  /cells=count row /statistics=chisq phi. 
+
+
+****************************.
+** Seg7.2(iii) Ordinal data illustration :.
+
+fre var=soclase edlev2. 
+* both of these variables might be considered ordinal .
+* We still do a crosstab, but now we might also use an ordinal data statistic 
+*   such as 'gamma'.
+cro soclase by edlev2   /cells=count row /statistics=chisq phi gamma . 
+** Gamma is bigger than the Cramer's V - there is _more_ pattern if you look at orders. 
+** The p-values here are much the same;  it is _unusual_ for a nominal cf ordinal  categorical
+**  association statistics to have different significance levels - but it's not impossible.
+
+compute ag35=(age=35).
+compute ag35m=(age=35 & sex=1).
+filter by ag35.
+cro soclase by edlev2   /cells=count row /statistics=chisq phi gamma . 
+filter by ag35m.
+cro soclase by edlev2   /cells=count row /statistics=chisq phi gamma . 
+filter off.
+* Comment : when the sample size goes down, the assocs and significances change - 
+*  but note that the sparse table is problematic anyway (low cell counts).
+
+
+*** Comment: ordinal associations v correlations : 
+** There are some 'ordinal correlation' statistics available (esp 'Spearman's Rho', segment 4 below).
+**  However these aren't really suited to ordinal data where there are relatively 
+**   few categories involved - they are intended for measures which are much 
+**  closer to an interval level. 
+
+
+
+*******************************************************.
+*** Segment 7.3) Metric-categorical  statistics . 
+*******************************************************.
+
+fre var=sex soclase.
+graph /histogram= workhrs . 
+
+
+*********************************.
+*** Seg7.3(i) Metric-categorical  graphics . 
+
+** We use confidence intervals :.
+graph /errorbar(CI 95)=workhrs by soclase by sex  /title="Mean working hours with 95% CI's".
+graph /errorbar(CI 95)=workhrs by sex by soclase /title="Mean working hours with 95% CI's".
+* (note how the order of variables influences the presentation).
+
+graph /errorbar(CI 99)=workhrs by soclase by sex  /title="Mean working hours with 99% CI's".
+graph /errorbar(CI 90)=workhrs by soclase by sex  /title="Mean working hours with 90% CI's".
+
+
+** You can also get the CI's as numbers, for example with :.
+examine variables= workhrs by soclase by sex /nototal /plot=boxplot /statistics descriptives. 
+
+
+
+*********************************.
+*** Seg7.3(ii) Metric-categorical association statistics ('anova') . 
+
+** There are several variations  :.
+
+** 'means tables' is the easiest to begin with. 
+means tables=workhrs by sex by soclase /statistics=anova.
+means tables=workhrs by soclase by sex /statistics=anova.
+** NOTE: the anova significance is _bivariate only_ with the means procedure .
+*   -> use the 'split files' command :.
+sort cases by sex.
+split files by sex. 
+means tables=workhrs by soclase /statistics=anova.
+split files off.
+
+
+
+** Many stats texts describe 'T-tests', which are interential tests for 
+*     the difference between the means of 2 groups (_only_ 2 groups).
+t-test groups=sex(1,2) /variables=workhrs.
+t-test groups=soclase(1,4) /variables=workhrs.
+
+
+
+** T-tests are a subgroup of 'anova' methods, which can be applied to more 
+**   than two groups, eg :.
+oneway workhrs by soclase .
+means tables=workhrs by soclase / statistics=anova. 
+** (Note that the 'means tables' procedure use simple anova statistics).
+
+** Comment: anova tests are covered at length in a great many textbooks, for two reasons: 
+*     - for some reason, they are thought to be particularly intuitive and thus pedagogically sound
+*     - for some other reason, they are enormously popular in certain fields of the social sciences
+*         eg, introductory level data analysis teaching in psychology is dominated by 'anova' designs. 
+*     From a sociological analytical perspective, anova methods are usually a waste of time - 
+*       they are poor subsets of the more powerful 'statistical modelling' framework (session 4)
+*        and they also require unusually strict parametric assumptions for the data in question. 
+
+
+*******************************************************.
+*** Segment 7.4) Metric-metric inferential statistics . 
+*******************************************************.
+
+descriptives var=workhrs earn2 . 
+graph /scatterplot=workhrs with earn2.
+
+**********************************.
+***  Seg7.4(i) Correlation statistics :.
+correlate var=workhrs with earn2.
+
+**********************************.
+***  Seg7.4(ii) Bivariate regression model :.
+regression var=workhrs earn2 
+     /dependent=earn2  /method=enter . 
+
+
+***********************************.
+*** Seg7.4(iii) Non-parametric associations :.
+
+** Example : working hours if between 30-50, by social class :.
+
+compute wk3050f=(workhrs ge 30 & workhrs le 50 & sex=2).
+fre var=wk3050f soclase. 
+filter by wk3050f.
+graph /scatterplot=workhrs with soclase. 
+* (comment: to see patterns, use the 'bins' option on the scatterplot - open the scatterplot 
+*   as an output option, then 'edit' and 'properties' then 'point bins' and 'bins' ).
+correlate var=workhrs with soclase. 
+* A non-parametric association : . 
+nonpar corr var=workhrs with soclase. 
+filter off. 
+
+******************.
+
+LESSON 8
+
+
+*******************************************************.
+*******  MULTIVARIATE INFERENTIAL TECHNIQUES ON THE GHS95 FILE . 
+*******************************************************.
+
+
+
+
+fre var=sex edlev soclase . 
+
+** Treat the edlev and soclase variables, as in part 2 syntax example : .
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+
+fre var=edlev2 soclase . 
+
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+** .
+
+
+*******************************************************.
+*** Segment 8.2) Multivariate comparisons and inference. 
+*******************************************************.
+
+
+** As one example : 
+*** Age and General health, by education and gender . 
+
+graph /histogram=age.
+fre var=genhlth edlev2 sex . 
+
+
+** Graphically : .
+sort cases by sex.
+split file by sex.
+graph /errorbar(CI 95)=age by genhlth by edlev2 . 
+split file off. 
+* Comment: not too easy to take in all of this info. 
+
+** In tables :.
+sort cases by sex edlev2. 
+split files by sex edlev2.
+means tables=age by genhlth /statistics=anova.
+split files off. 
+
+** The tables of assoc statistics and anovas tells us whether age and health are significantly 
+**   associated within each group. 
+* (Note how 'split files' doesn't exclude missing values).
+*  
+
+
+*******************************************************.
+*** Segment 8.3) Multivariate Regression model format. 
+*******************************************************.
+
+
+** Outcome variable : earnings (cropped).
+
+graph /histogram=earn2.
+
+** Explanatory variables .
+
+graph /histogram=age.
+
+examine variables age workhrs /plot=boxplot .
+compute age2=age**2.
+graph /scatterplot=age with age2.
+
+fre var=sex
+
+fre var=sex edlev2 region. 
+** Comment: categorical data needs to be expressed through 'dummy' variables 
+*    to go into a regression (minimum (c-1) variables for c categories).. 
+
+*** check out the UCLA page on dummy coding
+*** https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faqwhat-is-dummy-coding/
+
+*** essentially you interpret the effect in relation to a reference category that is ommited from the model
+
+compute female=(sex=2).
+
+compute hied=(edlev2=1).
+compute loed=(edlev2=3).
+
+compute london=(region=11).
+compute outlond=(region=12 | region=13).
+compute scotland=(region ge 18 & region le 22).
+compute wales=(region=16 | region=17).
+
+fre var=female hied loed london outlond scotland wales. 
+
+
+*** a simple regression of earnings
+*** controlling age, hours worked sex
+
+regression var=earn2 age workhrs female
+     /dependent=earn2  /method=enter . 
+
+
+
+****** Regression model with all factors included :.
+
+regression var=earn2 age age2 workhrs female hied loed london outlond scotland wales 
+     /dependent=earn2  /method=enter . 
+
+
+
+
+**** more on regression: http://onlinestatbook.com/2/regression/multiple_regression.html
+
+*** UCLA on regression: https://stats.idre.ucla.edu/spss/output/regression-analysis/
+*** give me a shout and we can talk about it
+
+***********************************************.
+
+*** CI example from the lecture
+
+examine variables=workhrs   /plot=none
+	/statistics descriptives /cinterval 95 .
+
+
+
+
+*** LESSON 9
+
+
+
+*********************************************************************.
+******* MULTIVARIATE COMPARISONS  ON THE GHS95 FILE . 
+*******************************************************************.
+
+
+
+
+
+**** Multivariate comparisons
+**** LOTS OF IDEAS FOR ANALYSIS FOR YOUR COURSE WORK
+
+
+*******************************************************.
+*** Segment 9.1) Open the ghs95 file and run some variable constructions. 
+*******************************************************.
+
+get file=!path2+"ghs95_v1.sav".
+
+fre var=sex edlev soclase . 
+
+** Treat the edlev and soclase variables, as in previous syntax examples : .
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+fre var=edlev2 soclase . 
+
+** Region and tenure :.
+fre var= tenure. 
+compute tenure2=tenure.
+recode tenure2 (1,2,3=1) (4,5,9,10,11=3) (6,7=2) (else=-999).
+add value labels tenure2 1 "Own or buying" 2 "Social housing" 3 "Private renting".
+missing values tenure2 (-999).
+fre var=tenure2. 
+fre var=region.
+* comment - there's more than one way the regional data could be recoded - you 
+*   could take greater acount of metropolitan status . 
+compute region2=region.
+recode region2 (1,2,3,4=2) (5,6=1) (7,8,9=3) (10,14,15=4) (11=5) (12,13=6) 
+              (16,17=7) (18,19,20,21,22=8).
+add value labels region2 1 "N West" 2 "North and Yorks" 3 "W and E Midlands" 
+          4 "South" 5 "Inner London" 6 "Outer London" 7 "Scotland" 8 "Wales" .
+fre var=region2 . 
+
+** Earnings, working hours, and age. 
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+** .
+
+*******************************************************.
+*** Segment 9.2) Multivariate comparisons where all variables are categorical . 
+*******************************************************.
+**  . 
+
+************.
+* Seg9.2(i) Relationship between visits to the dentist and highest educational level.
+************.
+
+
+fre var=dntstwhn edlev2 . 
+* These distributions suit analysis now - no further data management needed :.
+
+cro tables=edlev2 by dntstwhn /cells=count row /statistics=phi chisq gamma .
+graph /bar=pct by edlev2 by dntstwhn . 
+
+** These associations show a modest relation between the two variables - 
+*      people with higher levels of education are more likely to have regular check-ups . 
+*   (Both these variables could be regarded as ordinal : use the 'gamma' measure. 
+
+** Multivariate 1 : the association the same for men and women?.
+
+cro tables=edlev2 by dntstwhn by sex /cells=count row /statistics=phi chisq gamma .
+
+** A third (or further) variable in a crosstab is usually called the 'layer' 
+**   (the first two variables are the row and column) . 
+
+
+** In fact, controlling for a 3rd variable can also be achieved by several other data management 
+*    controls - including 'select', 'filter', or using 'split files' . 
+
+temp.
+select if (sex=1).
+cro table=edlev2 by dntstwhn /cells=count row .
+
+** Comment: when 'temp' precedes 'select', the selection only operates on the next SPSS process.
+**   Warning: if 'temp' doesn't precede 'select', then 'select' acts permanently on the file, 
+**      dropping all non-selected cases for good. 
+
+compute male=(sex=1).
+filter by male. 
+cro edlev2 by dntstwhn /cells=count row . 
+show filter.
+filter off. 
+cro edlev2 by dntstwhn /cells=count row. 
+show filter.
+
+** Comment: when 'filter' is on, all analyses are restricted to cases where the filter variable=1.
+**   The non-essential 'show filter' command is just used to confirm whether is filter 
+*       variable is currently in use - use it at any time to check your data. 
+
+sort cases by sex. 
+split file by sex. 
+cro edlev2 by dntstwhn /cells=count row. 
+graph /bar=pct by edlev2 by dntstwhn . 
+split file off. 
+
+** Comment: 'split files' runs all analyses on every permutation of the split variable. 
+**  Note that the data must be sorted by the split variable. 
+
+
+** Summary from above :.
+cro tables=edlev2 by dntstwhn by sex /cells=count row /statistics=phi chisq gamma .
+sort cases by sex. 
+split file by sex. 
+graph /bar=pct by edlev2 by dntstwhn . 
+split file off. 
+
+* The patterns shows a couple of things : women generally have higher rates of visiting the  
+*   dentist; both m and f rates are influenced by educational level in the same direction; 
+*    but men's rates are a little more influenced by educational level than are women's. 
+
+
+
+** Multivariate 2 : is the relation the same for men and women by their general health levels.
+fre var=genhlth.
+compute genhlth2=genhlth.
+recode genhlth2 (1=1) (2,3=2) .
+add value labels genhlth2 1 "Good health" 2 "Average / poor" .
+fre var=genhlth2.
+
+cro tables=edlev2 by dntstwhn by genhlth2 by sex 
+       /cells=count row /statistics=phi chisq gamma .
+sort cases by sex. 
+split files by sex.
+cro tables=edlev2 by dntstwhn by genhlth2 /cells=count row /statistics=phi chisq gamma .
+graph /bar=mean(dntstwhn) by edlev2 by genhlth2 . 
+split files off. 
+* [note how we've used the mean of a categorical variable in the graphic 
+*   to give us an _approximate_ image of frequency of visits - the mean is not wholly 
+*  appropriate but serves to give a basic guide]. 
+
+** Comment: some of the things that this shows are: 
+**  Male's use of dentists and assocaitions from educational level to use of dentists,
+**   don't seem to vary according to whether in 'good health' or not. 
+**  Female's use of dentists and assocaitions from educational level to use of dentists,
+**   do seem to vary slightly according to whether in 'good health' or not -  the association
+*      is higher for those not in good health . 
+**  Note - overall, there's lots of information here - multiple comparisons soon become 
+**   quite clumsy. 
+
+** Problem 1: Too much disaggregation is not possible on limited size samples - quickly 
+*     start to have sparse tables and empty cells, which is ill suited to inferential conclusions. 
+*     This is particularly pronounced if some variables have skewed distributions where some 
+*      categories have very few cases, eg say we were interested in those in _poor_ health. 
+ 
+
+** Problem 2: Very complex tables and categorical comparisons are difficult to interpret. 
+
+
+
+
+**** Extension : fooling SPSS graphs . 
+** The graphs above involve 4 concepts, though SPSS bar charts only really allow 2 or 
+*  three variables. 
+fre var=edlev2 dntstwhn sex genhlth2 . 
+* We can 'cheat' the graph procedure to get a nicer display, by 'transforming' 
+*   data and 'merging' variables. 
+** Transform the dnsstwhn variable to a 'metric' (as above).
+compute dnt2=dntstwhn.
+recode dnt2 (1=4) (2=3) (3=2) (4=1).
+variable label dnt2 "Frequency of visiting dentist" . 
+** 'Merge' gender and health into one variable.
+compute sexhlth=(sex*10) + genhlth2.
+add value labels sexhlth 11 "Male, good health" 12 "Male, average/poor health" 
+          21 "Female, good health" 22 "Female, average/poor health" .
+** Now get a single graph :.
+graph /bar=mean(dnt2) by sexhlth by edlev2  . 
+*****.
+
+
+
+***************.
+* Seg9.2(ii) Relationship between region and housing tenure.
+***************.
+
+fre var=tenure2 region2 . 
+* These distributions suit analysis now - no further data management needed :.
+
+cro tables=region2 by tenure2 /cells=count row /statistics=phi chisq  .
+graph /bar=pct by region2 by tenure2 . 
+
+** These associations show a modest relation between the two variables .
+** However note that the association stats just show that there is some 
+**  association somewhere in the table - they don't show where exactly it lies.
+** By inspection, inner London and Wales have different profiles to others,
+**   with Wales having unusually high social housing, and IL high private renting. 
+** These can also be explored by making more specific contrasts, eg : .
+
+temp. 
+select if (tenure2=1 | tenure2=3).
+cro region2 by tenure2 /cells=count row /statistics=phi chisq .
+temp. 
+select if ((tenure2=1 | tenure2=3) & region2 ne 5).
+cro region2 by tenure2 /cells=count row /statistics=phi chisq .
+
+** Inner London nearly entirely responsible for the regional patterns in owning v's renting 
+**    - if inner london is excluded, there's v little other difference.  
+
+
+
+***************.
+* Seg9.2(iii) Further illustrations of multiple cross-classifications .
+***************.
+
+********.
+*  'Tables' command gives us more control over presenting 3+ way crosstabulations, eg :.
+
+tables /format blank missing ('.') /ftotal=ftot1 "Total"
+  /tables dntstwhn + ftot1 by  sex > (edlev2) 
+  /statistics cpct ((pct4) ' ' :sex edlev2)   count ((F5.0) ' Cases ') 
+     /title="Visits to the dentist, by gender and educational level"  . 
+
+
+*******.
+*  .
+
+
+*******************************************************.
+*** Segment 9.3) Multivariate comparisons where one variable is metric, all others are categorical . 
+*******************************************************.
+**  . 
+
+************.
+* Seg9.3(i) Relationship between working hours, social class and gender .
+************.
+
+graph /histogram=workhrs . 
+fre var=sex soclase. 
+
+
+* Main descriptive method = nested analysis of means by groups (tables or graphs). 
+
+** Bivariate relationships :.
+means tables=workhrs by sex soclase /cells=mean stddev count min max  /statistics=anova . 
+examine variables=workhrs by sex soclase /nototal /percentiles(1 5 10 50 90 95 99)
+        /plot=boxplot /statistics=descriptives extreme . 
+
+** Multivariate relationships :.
+examine variables=workhrs by soclase by sex /nototal /percentiles(1 5 10 50 90 95 99)
+        /plot=boxplot /statistics=descriptives extreme . 
+means tables=workhrs by soclase by sex /cells=mean stddev count min max  /statistics=anova . 
+means tables=workhrs by sex by soclase  /cells=mean stddev count /statistics=anova . 
+sort cases by sex.
+split files by sex. 
+means tables=workhrs by soclase /cells=mean stddev count /statistics=anova . 
+split files off. 
+* Note - for an anova statistics to be split between groups under 'means', using 'split files'
+*   is the easiest way. 
+graph /bar=mean(workhrs) by sex by soclase.
+graph /bar=median(workhrs) by sex by soclase.
+graph /bar=mean(workhrs)  by soclase by sex .
+graph /bar=median(workhrs)  by soclase by sex .
+* (a different picture between means and medians).
+
+graph /errorbar(CI 95)=workhrs by soclase by sex. 
+
+** Comment - there's lots of alternative presentational options here..! .
+
+** Inference statistics: overlapping error bars show specific contrasts between category means,
+**   whereas anova statistics show if there are _any_ contrasts anywhere in the data. 
+
+
+************.
+* Seg9.3(ii) Relationship between income, education, region and gender .
+************.
+
+
+graph /histogram=earn2. 
+means tables=earn2 by edlev2 region2 sex /statistics=anova. 
+
+** All three factors are related to earnings on their own. 
+
+cro region2 by edlev2 /cells=count row /statistics=phi .
+cro sex by edlev2 /cells=count row /statistics=phi .
+cro region2 by sex /cells=count row /statistics=phi .
+** region-educ, and sex-educ are both related, but region-sex are not. 
+
+
+** Now try looking at everything .
+
+** (a) Reviewing : .
+means tables=earn2 by region2 by edlev2 by sex . 
+sort cases by sex.
+split files by sex. 
+graph /bar=mean(earn2) by region2 by edlev2  . 
+graph /bar=median(earn2) by region2 by edlev2  . 
+graph /bar=median(earn2) by edlev2 by region2 . 
+split files off. 
+examine variables=earn2 by sex by edlev2 by region2  /nototal /plot=boxplot .
+
+
+** (b) Summarising with association statstics :.
+sort cases by sex region2.
+split files by sex region2.
+means tables=earn2 by edlev2 /statistics=anova. 
+split files off. 
+ 
+** (c) Looking at the inferential significance :.
+
+sort cases by sex region2.
+split files by sex region2.
+means tables=earn2 by edlev2 /statistics=anova. 
+split files off. 
+
+sort cases by sex .
+split files by sex.
+graph /errorbar(CI 95)=earn2 by edlev2 by region2 . 
+split files off. 
+* or to get them on the same graph :.
+fre var=sex edlev2.
+compute sexeduc=-999.
+if (sex ge 1 & edlev2 ge 1) sexeduc=(sex*10) + edlev2.
+add value labels sexeduc 11 "Male, higher education" 12 "Male, intermediate education" 13 "Male, lower education" 
+                 21 "Female, higher education" 22 "Female, intermediate education" 23 "Female, lower education"  .
+fre var=sexeduc.
+missing values sexeduc (-999).
+graph /errorbar(CI 95)=earn2 by sexeduc by region2. 
+                 
+
+*** Anova and Manova also undertake significance tests of associations plus their interactions:. 
+
+anova variables=earn2 by edlev2 (1,3) region2 (1,8) sex(1,2)  .
+
+** Comment: the earnings variable here is continuous - a linear transformation 
+*   of it could change the story a bit :.
+
+compute lnearn2=ln(earn2).
+graph /scatterplot=earn2 with lnearn2. 
+* The log transform takes the emphasis away from high positive values. 
+
+anova variables=lnearn2 by edlev2 (1,3) region2 (1,8) sex(1,2)  .
+** This gives different patterns of influence. 
+
+** However - anova / manova aren't really descriptive techniques - they're more like models. 
+
+**********************************************************.
+
+
+************.
+* Seg9.3(iii) Multivariate comparisons where two variables are metric, all others are categorical .
+************.
+
+** main methods = nested tables of bivariate correlations, and scatterplots . 
+
+graph /histogram=earn2 .
+graph /histogram=workhrs .  
+fre var=sex edlev2 . 
+
+
+
+**  Nested bivariate correlations .
+
+correlate var=earn2 with workhrs .
+sort cases by sex edlev2 .
+split files by sex edlev2 .  
+correlate var=earn2 with workhrs  .
+split files off. 
+
+
+** Graphics :.
+
+graph /scatterplot=workhrs with earn2 by sex . 
+
+graph /scatterplot=workhrs with earn2 by sexeduc.
+*(assumes 'sexeduc' is created as above).
+
+** Comment : you can adjust the scatterplot display by opening the graphic 
+*    and changing the point identifiers, for instance icons and using 'point bins'. 
+*   However, scatterplots like this don't look especially good with lots and lots of 
+*     cases - they can be more informative on smaller samples and/or categorical variables.
+
+
+
+*******************************************************.
+*** Segment 9.4) Multivariate comparisons where 2+ variables are metric . 
+*******************************************************.
+**  . 
+
+
+***************.
+** Seg9.4(i) All metric variables .
+***************.
+
+** this particular situation suits 'partial correlation coefficients' (which are best 
+*    compared immediately with bivariate correlations).
+
+compute age2=age**2 . 
+descriptives var=earn2 workhrs age age2 .
+
+
+** Bivariate comparisons :.
+correlate var=earn2 workhrs age age2 .
+
+** Multivariate comparison :.
+* Earnings to working hours, adjusting for linear age . 
+partial correlation var=earn2 workhrs by age  .
+* Earnings to working hours, adjusting for quadrtic age . 
+partial correlation var=earn2 workhrs by age age2 .
+* Earnings to age, adjusting for working hours. 
+partial correlation var=earn2 age by workhrs .
+* Working hours to age, adjusting for earnings  (though doesn't make much theoretical sense). 
+partial correlation var=workhrs age by earn2 .
+
+
+
+** These compare to multiple regression coefficients (see lesson on regression):.
+regression var=earn2 workhrs age age2 
+     /dependent=earn2 /method=enter . 
+
+
+***************.
+** Seg9.4(ii) 2+ metric plus some categorical variables .
+***************.
+
+** Easiest strategy is to reduce the data so that only 1 variable is treated as metric, all others 
+**   are treated as categorical . 
+
+descriptives var=earn2 age .
+fre var=sex region2.
+
+compute age6=age.
+recode age6 (16 thru 25=1) (26 thru 35=2) (36 thru 45=3) (46 thru 55=4) 
+                  (56 thru 65=5) (66 thru hi=6).
+add value labels age6 1 "16-25yrs" 2 "26-35yrs" 3 "36-45yrs" 4 "46-55yrs" 5 "56-65yrs" 6 "66+ yrs".
+fre var=age6.
+
+examine variables=earn2 by sex by region2 by age6   /nototal /plot=boxplot .
+sort cases by sex.
+split files by sex.
+graph /errorbar(CI 95)=earn2 by age6 by region2.
+split files off.
+
+*******************************************************.
+*** Segment 9.5) Multivariate comparisons: extensions .
+*******************************************************.
+
+*****************.
+** Seg9.5(ii) Multivariate comparisons extension: missing values  . 
+***************.
+
+** Use the GHS 95 example file. 
+
+fre var=sex genhlth dntstwhn  . 
+
+missing values genhlth dntstwhn (-777).
+*(this just means all values are used in data) .
+cro sex by dntstwhn by genhlth /cells=count row . 
+* Observe - quite a lot of missing data on these questions. 
+
+** 4 common solutions :.
+
+** (a) Most used (by far): listwise deletion :.
+missing values genhlth dntstwhn (-9).
+fre var=sex genhlth dntstwhn  . 
+cro sex by dntstwhn by genhlth /cells=count row /statistics=phi . 
+
+
+** (b) Modal imputation (occasional usage).
+missing values genhlth dntstwhn (-777).
+fre var=sex genhlth dntstwhn  . 
+* Modal genhlth = 'good' ; model dntstwhn='regular checkup'.
+compute genhlth2=genhlth.
+compute dnt2=dntstwhn.
+recode genhlth2 (-9=1).
+recode dnt2 (-9=1). 
+add value labels genhlth2 1 "Good" 2 "Fairly good" 3 "Poor".
+add value labels dnt2 1 "Regular checkup" 2 "Occassional checkup" 
+          3 "Having trouble" 4 "Never go to dentist" .
+fre var=genhlth2 dnt2. 
+cro sex by dnt2 by genhlth2 /cells=count row /statistics=phi . 
+
+** (c) a variation on 'modal imputation' is 'Null Imputation' -  
+*   code all the missings to the 'middle' or 'inextreme' category according to an a priori 
+*   judgement over the role of the categories. Eg, the 'null' category for genhlth 
+*   could be 'fairly good', and the 'null' for dntstwhn could be 'having trouble'.
+
+missing values genhlth dntstwhn (-777).
+fre var=sex genhlth dntstwhn  . 
+compute genhlth3=genhlth.
+compute dnt3=dntstwhn.
+recode genhlth3 (-9=2).
+recode dnt3 (-9=3). 
+add value labels genhlth3 1 "Good" 2 "Fairly good" 3 "Poor".
+add value labels dnt3 1 "Regular checkup" 2 "Occassional checkup" 
+          3 "Having trouble" 4 "Never go to dentist" .
+fre var=genhlth3 dnt3. 
+cro sex by dnt3 by genhlth3 /cells=count row /statistics=phi . 
+
+** (d) Informed imputation .
+
+* Here we use some other information about the cases with missing values, to make a 'best 
+*  guess' at what the likely value would have been. 
+** Statistical routines are available to do that for you, though they are still in development
+*    and SPSS's options only allow for certain treatments. 
+** It is also possible to make informed imputations by simpler calculations, 
+**   which, as below, typically involve both informed and modal imputation : . 
+
+
+missing values genhlth dntstwhn (-9).
+cro genhlth by longill /cells=count row  .
+cro dntstwhn by teeth /cells=count row . 
+missing values genhlth dntstwhn (-777).
+
+
+* For genhlth : if longill=3, genhlth is very likely to be 1; if longill=1, genhlth likely to be 3.
+* For dntstwhn : anyone with no teeth can be assumed for these purposes not to visit dentist. 
+
+compute genhlth4=genhlth.
+if (genhlth=-9) genhlth4=1.
+if (genhlth=-9 & longill=3) genhlth4 =1.
+if (genhlth=-9 & longill=1) genhlth4 =3.
+*(so long as the ifs are run in this order, then the latter ones get priority).
+
+compute dnt4=dntstwhn.
+if (dntstwhn=-9) dnt4=1.
+if (teeth=2) dnt4=1.
+* (again, the ifs should be run in order, though in this case its not so important).
+
+add value labels genhlth4 1 "Good" 2 "Fairly good" 3 "Poor".
+add value labels dnt4 1 "Regular checkup" 2 "Occassional checkup" 
+          3 "Having trouble" 4 "Never go to dentist" .
+fre var=genhlth4 dnt4. 
+cro sex by dnt4 by genhlth4 /cells=count row /statistics=phi . 
+
+
+*** Comment on missing value imputations: all these options are possibilities and 
+*    none are strictly 'right' or 'wrong' - depending on the situation, missing data 
+*   treatments can have quite a big impact upon our analysis. 
+*   To justify ignoring them, you have to show that some alternative treatments 
+*   don't make a huge difference to the outcomes. 
+
+*******************************************************************.
+*********************************************************************.
+
+
+
+**** LESSON 10
+
+
+*** REGRESSION ANALYSIS
+
+
+
+*****************.
+*** Seg10.1(i) Prediction of earnings. 
+*****************.
+
+** Treat the edlev and soclase variables, as in previous syntax examples : .
+compute edlev2=edlev.
+recode edlev2 (1,2,3=1) (4,5,6,7,8,13,15,16=2) (9,10,11,12,17=3) (else=-999).
+variable label edlev2 "Highest educational qualification, 3 categories".
+add value labels edlev2 1 "Higher level qualification" 2 "Intermediate" 3 "Low school level or no qualification" .
+missing values edlev2 (-999).
+missing values soclase (-9,7).
+variable label soclase "Registrar General's Social Class (based on current or last occupation)".
+fre var=edlev2 soclase . 
+
+
+** Earnings, working hours, and age. 
+summarize var=earnings workhrs age /cells=count mean stddev min max . 
+compute earn2=earnings. 
+if (earnings le 50 | earnings gt 2000) earn2=-999.
+missing values earn2 (-999).
+variable label earn2 "Average weekly earnings (range 51-2000 only)".
+graph /histogram(normal)=earn2. 
+graph /histogram(normal)=workhrs.
+
+
+** Outcome variable : earnings (cropped).
+graph /histogram=earn2.
+
+** Explanatory variables .
+
+graph /histogram=age.
+
+examine variables age workhrs /plot=boxplot .
+compute age2=age**2.
+graph /scatterplot=age with age2.
+fre var=sex edlev2 region. 
+
+** Comment: categorical data needs to be expressed through 'dummy' variables 
+*    to go into a regression (minimum (c-1) variables for c categories).. 
+
+*** check out the UCLA page on dummy coding
+*** https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faqwhat-is-dummy-coding/
+
+compute female=(sex=2).
+compute hied=(edlev2=1).
+compute loed=(edlev2=3).
+compute london=(region=11).
+compute outlond=(region=12 | region=13).
+compute scotland=(region ge 18 & region le 22).
+compute wales=(region=16 | region=17).
+fre var=female hied loed london outlond scotland wales. 
+
+
+
+****** Regression model with all factors included :.
+
+regression var=earn2 age age2 workhrs female hied loed london outlond scotland wales 
+     /dependent=earn2  /method=enter . 
+
+** Interpretation: see the sign and significance of coefficient estimates. 
+
+** [Comment: to interpret a quadratic function of age, see the website: 
+** http://staff.stir.ac.uk/paul.lambert/polynomials.xls ] . 
+
+
+
+****** Use an algorithm for only including significant terms:.
+
+regression var=earn2 age age2 workhrs female hied loed london outlond scotland wales 
+     /dependent=earn2  /method=stepwise . 
+
+* SPSS automatically excludes non-significant explanatory factors.
+* Cramer 2004 makes a lot of the model selection technique: chapters 5 and 6
+*  both cover multiple regression, differing only in terms of the model selection protocol. 
+
+
+
+
+*****************.
+*** Seg10.2(ii) Prediction of working hours. 
+*****************.
+
+** Dependent variables :.
+graph /histogram=workhrs . 
+
+** Explanatory variables : try the same as earnings model  :.
+descriptives var=age age2.
+fre var=female hied loed london outlond scotland wales
+
+
+*** Regression model :.
+
+regression var=workhrs age age2 female hied loed london outlond scotland wales 
+     /dependent=workhrs  /method=enter . 
+
+
+** Comment: the relation between the models of seg 2(i) and (ii) are sometimes used to 
+**   formulate 'path analysis' diagrams. 
+
+
+**********************.
+
+
+
+***   LESSON 11
+
+
+***  REGRESSION AND LOGIT MODELS
+
+
+**********************.
+
+
+
+
+*******************************************************.
+*** Segment 11.3) Example categorical regression models (1) : 
+****                              Logistic regression . 
+*******************************************************.
+
+
+*****************.
+*** Seg11.3(i) Prediction of probability of having a computer in the household . 
+*****************.
+
+** Dependent variable :.
+fre var=computer.
+* (remember that this data is from 1995). 
+compute comput=computer. 
+recode comput (1=1) (2=0) (else=-999).
+missing values comput (-999).
+fre var=comput. 
+
+ 
+** Explanatory variables (i) (these all defined above in segment 2):.
+descriptives var=age age2 earn2 . 
+fre var=female hied loed london outlond scotland wales . 
+
+** Logistic regression model :.
+
+logistic regression var= comput  
+       /method=enter  age age2 earn2 female hied loed london outlond scotland wales .
+
+** Explanatory variables (ii) - look at household level well-being . 
+
+graph /histogram=hohx. 
+compute lnhohx=-999.
+if (hohx ge 50 & hohx le 5000) lnhohx = ln(hohx).
+missing values lnhohx (-999).
+graph /histogram=lnhohx. 
+
+fre var=hohscle. 
+compute hohnm=hohscle. 
+recode hohnm (1,2,3=1) (4,5,6=0) (else=-999).
+variable label hohnm "Head of household managerial, professional or skilled non-manual" .
+missing values hohnm (-999).
+fre var=hohnm. 
+
+
+logistic regression var= comput  
+       /method=enter  age age2 earn2 female hied loed london outlond scotland wales lnhohx hohnm .
+
+* (this explains patterns much better).
+
+** And now try stepwise :.
+
+logistic regression var= comput  
+       /method=stepwise  
+           age age2 earn2 female hied loed london outlond scotland wales lnhohx hohnm .
+
+* This leads to quite a pithy model. 
+
+
+
+
+
+*****************.
+*** Seg11.3(ii) Prediction of probability of an 'advantaged' tenure situation . 
+*****************.
+
+** Dependent variable :.
+fre var=tenure. 
+** It is quite common to use logistic regression to devise a dichotomous contrast from 
+**  source data of a different form - for instance, here we allocate tenure categories to 
+** 'advantaged' and 'disadvantaged' situations, then model that. 
+compute ten2=tenure.
+recode ten2 (1,2,3,9,10=1) (4,5,6,7,8,11,12=0) (else=-999).
+missing value ten2 (-999).
+variable label ten2 "Advantaged tenure position".
+fre var=ten2.
+
+** Explanatory variables (as in earlier segments):.
+descriptives var=age age2 earn2 lnhohx . 
+fre var=female hied loed london outlond scotland wales hohnm  . 
+
+
+logistic regression var= ten2 
+        /method=enter  
+           age age2 earn2 female hied loed london outlond scotland wales lnhohx hohnm .
+
+logistic regression var= ten2 
+        /method=stepwise  
+           age age2 earn2 female hied loed london outlond scotland wales lnhohx hohnm .
+
+
+* Here for example, Scotland but not wales has less advantaged average tenure after 
+**   controlling for other factors.
+
+
+
+*******************************************************.
+*** Segment 11.4) Example categorical regression models (2) : 
+****                              Multi-category models and loglinear models  . 
+*******************************************************.
+
+** There are several model formats .
+** Here try one outcome: tenure in 4 categories .
+fre var=tenure. 
+compute ten3=tenure.
+recode ten3 (2=1) (1,3=2) (9,10,11=3) (4,5,6,7,8,12=4) (else=-999).
+add value labels ten3 1 "Owner outright" 2 "Buying" 3 "Private renting" 4 "Social and/or unfavourable renting" .
+missing values ten3 (-999).
+fre var=ten3. 
+
+* Comment: reducing to 4 categories is not essential but serves 2 purposes: 
+*   it is cognitively easier; and it increase the number of cases per categories. 
+
+
+** Explanatory variables as above  : . 
+descriptives var=earn2 lnhohx . 
+fre var=female hied loed london outlond scotland wales hohnm  . 
+
+
+
+*****************.
+*** Seg11.4(i) Multinomial logistic regression  . 
+*****************.
+
+fre var=ten3 . 
+** The mlogit is strictly nominal and contrasts all categories with each other . 
+
+
+nomreg ten3  with  
+      earn2 lnhohx female hied loed london outlond scotland wales hohnm  
+   /criteria = cin(95) delta(0) mxiter(100) mxstep(5) lconverge(0) pconverge(1.0E-6) singular(1.0E-8)
+  /model  /intercept = include
+  /print= parameter summary lrt.
+
+* This model currently contrasts against 'unfavourable' renting - to change that, 
+*  use the 'base' subcommand  - the below contrasts with 'buying' .
+
+nomreg ten3 (base=2) with  
+      earn2 lnhohx female hied loed london outlond scotland wales hohnm  
+   /criteria = cin(95) delta(0) mxiter(100) mxstep(5) lconverge(0) pconverge(1.0E-6) singular(1.0E-8)
+  /model  /intercept = include
+  /print= parameter summary lrt.
+
+
+**************************************************************.
+
+
+
+*****************.
+*** Seg11.4(ii) Ordered logistic regression  . 
+*****************.
+
+** If you feel the categorical data is ordinal, an ordered logit can be used. 
+** In terms of 'advantage', it might be plausible to treat ten3 as ordered from more to less.
+fre var=ten3 . 
+
+
+plum ten3 with 
+         earn2 lnhohx female hied loed london outlond scotland wales hohnm  
+  /criteria = cin(95) delta(0) mxiter(100) mxstep(5) lconverge(0)
+  pconverge(1.0E-6) singular(1.0E-8)
+  /link = logit   /print = fit parameter summary .
+
+** A test of  the value of the ordered logit would be little loss of (pseudo)-r2 compared to an mlogit :.
+* (mlogit will always explain more, but ordered logit may be more parsimonious).
+** Here, there's quite a drop, suggesting the ordered logit isn't that helpful . 
+
+
+
+
+*****************.
+*** Seg11.4(iii) Loglinear modelling  . 
+*****************.
+
+** Loglinear models primarily only apply when all the variables involved are categorical 
+* (though, stirctly, they can be adapted to incorporate metric variables). 
+**  They are also classically used when the variables invovled don't have a strong 
+*     dependent var v's explanatory vars structure. 
+
+** Loglinear models have been, historically, very widely used in sociology.
+* The best description of them is in Gilbert 1993; also see the appendix in Buckingham and Saunders 2004. 
+** However : loglinear models are to some degree an outdated technology - now that 
+**   categorical regression models are more easily estimated, many people no longer 
+**   bother with loglinear models. 
+** Another weakness is that (although they can be extended considerably to pick up more 
+**  complex patterns), in their basic form, they don't distinguish between the effects of specific
+**   category values in determining a pattern, but rather simply ascribe the influence to the 
+**   overall categorical variable. 
+
+fre var=ten3.
+fre var=edlev2 hohscle region2. 
+
+
+** An example loglinear model .
+
+* The SPSS loglinear modelling for multiple categorical relationships involves trying out several 
+* models in succession, and contrasting which ones fit better .
+
+
+** i) Main and all 2 way effects only :.
+genlog  ten3 edlev2 hohscle region2 
+  /model=poisson   /print=freq resid dev adjresid 
+  /plot=resid( adjresid) normprob( adjresid)
+  /criteria = cin(95) iterate(50) convergence(0.001) delta(0.5) 
+  /design   ten3 edlev2 hohscle region2 
+        ten3*edlev2 ten3*hohscle ten3*region2 edlev2*hohscle edlev2*region2 hohscle*region2  .
+
+
+*
+* => LR chi-square = 625 on 540, p=0.007 , ie still a significant gap from adequate fit . 
+
+** ii) Main and all 2 way and selected  three way :.
+genlog  ten3 edlev2 hohscle region2 
+     /model=poisson   /print=freq resid dev adjresid 
+  /plot=resid( adjresid) normprob( adjresid)
+  /criteria = cin(95) iterate(50) convergence(0.001) delta(0.5) 
+  /design   ten3 edlev2 hohscle region2 
+        ten3*edlev2 ten3*hohscle ten3*region2 edlev2*hohscle edlev2*region2 hohscle*region2  
+           ten3*hohscle*region2  .
+* => LR chi-square = 341 on 414 df, p=0.996  : 
+*   This model could be accepted : there is no longer a significant lack of fit between the 
+**    data and the model . 
+** Full procedure: try more permutations of variable effects, to locate the most parsimonious 
+** model that is also a good fit (see Gilbert 1993) . 
+
+
+**************************************************.
+*************************************************************************.
+
+
+
+
+
